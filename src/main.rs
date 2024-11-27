@@ -7,9 +7,10 @@ use image::{GenericImageView, ImageBuffer, Rgb, Rgba, RgbaImage};
 use std::cmp;
 fn main() {
     // grayscale(String::from("guads.jpg"));
-    // let image = image::open("./Results/mercy.jpg").unwrap();
+    let image = image::open("./Results/mercy.jpg").unwrap();
+    histogram(image);
     // let inverted = convolutional_Matrix(image.clone());
-    test3();
+    // test3();
 }
 // Open and save an image
 // path directory starts at imageProcessing
@@ -148,4 +149,24 @@ fn convolutional_Matrix(mut binding: DynamicImage /*,matrix: [[i8; 3]; 3]*/) -> 
         }
     }
     return binding;
+}
+
+fn histogram(binding: DynamicImage) {
+    let mut red_hist: Vec<u128> = vec![0; 256];
+    let mut blue_hist: Vec<u128> = vec![0; 256];
+    let mut green_hist: Vec<u128> = vec![0; 256];
+    let mut gray_hist: Vec<u128> = vec![0; 256];
+    for (x, y, pix) in binding.as_rgb8().unwrap().enumerate_pixels() {
+        red_hist[pix[0] as usize] += 1;
+        blue_hist[pix[1] as usize] += 1;
+        green_hist[pix[2] as usize] += 1;
+        let mut gray = (pix[0] as u16) + (pix[1] as u16) + (pix[2] as u16);
+        gray /= 3;
+        let index = usize::try_from(gray).unwrap();
+        gray_hist[index] += 1;
+    }
+    println!("Red Histogram: {:?}\n\n", red_hist);
+    println!("Green Histogram: {:?}\n\n", green_hist);
+    println!("Blue Histogram: {:?}\n\n", blue_hist);
+    println!("Gray Histogram: {:?}\n\n", gray_hist);
 }
