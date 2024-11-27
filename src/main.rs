@@ -1,5 +1,6 @@
 #![allow(unused)]
-use std::env;
+use std::collections::btree_map::Range;
+use std::{env, i16};
 
 use egui::ResizeDirection;
 use image::{buffer::EnumeratePixelsMut, DynamicImage, Pixel};
@@ -7,10 +8,11 @@ use image::{GenericImageView, ImageBuffer, Rgb, Rgba, RgbaImage};
 use std::cmp;
 fn main() {
     // grayscale(String::from("guads.jpg"));
-    let image = image::open("./Results/mercy.jpg").unwrap();
-    histogram(image);
+    // let image = image::open("./Results/mercy.jpg").unwrap();
+    // histogram(image);
     // let inverted = convolutional_Matrix(image.clone());
     // test3();
+    test4();
 }
 // Open and save an image
 // path directory starts at imageProcessing
@@ -55,6 +57,13 @@ fn test3() {
         pixel[2] = gray;
     }
     img.save("./Results/Sleep.png").unwrap();
+}
+
+fn test4() {
+    let mut image = image::open("./Images/guads.jpg").unwrap();
+    image = brightness(image, -50); // should just use reference
+    println!("Done Brightness \n now Saving");
+    image.save("./Results/guady.jpg").unwrap();
 }
 
 fn grayscale(image_name: String) {
@@ -169,4 +178,25 @@ fn histogram(binding: DynamicImage) {
     println!("Green Histogram: {:?}\n\n", green_hist);
     println!("Blue Histogram: {:?}\n\n", blue_hist);
     println!("Gray Histogram: {:?}\n\n", gray_hist);
+}
+
+fn safeAddition(x: u8, y: i8) -> u8 {
+    let new_x = x as i16;
+    let new_y = y as i16;
+    let mut handler = new_x + new_y;
+    match handler {
+        ..0 => 0,
+        v if v > u8::MAX as i16 => u8::MAX,
+        v => v as u8,
+    }
+}
+
+fn brightness(mut binding: DynamicImage, brightness: i8) -> DynamicImage {
+    let image = binding.as_mut_rgb8().unwrap();
+    for (x, y, pixel) in image.enumerate_pixels_mut() {
+        pixel[0] = safeAddition(pixel[0], brightness);
+        pixel[1] = safeAddition(pixel[1], brightness);
+        pixel[2] = safeAddition(pixel[2], brightness);
+    }
+    return binding;
 }
